@@ -318,5 +318,5 @@ table.game-info-matrix > tbody > tr > td:last-child {
 } 
 
 .hidden {
-    /* display: none !important; */
+     display: none !important;
 }
