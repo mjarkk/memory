@@ -1,6 +1,9 @@
-### ![IMAGE](https://www.ao-alfa.nl/img/alfa-logo-v-cmyk.png)
-__Opleiding:__ Applicatie Ontwikkelaar
-__Vak:__       JavaScript
+### ![IMAGE](https://www.ao-alfa.nl/img/alfa-logo-v-cmyk.png)  
+__Opleiding:__ Applicatie Ontwikkelaar  
+__Vak:__       JavaScript  
+__STATUS:__    AF  
+__DATUM AF:__  30-12-2017  
+
 
 # Eindopdracht
 ### Inleiding

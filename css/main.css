@@ -250,17 +250,17 @@ table.game-info-matrix > tbody > tr > td:last-child {
     box-shadow: 4px 4px 8px #ccc;
     /* -webkit-perspective: 1000px;
     perspective: 1000px; */
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
+    /*-webkit-transform-style: preserve-3d;*/
+    /*transform-style: preserve-3d;*/
     /* -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%); */
-    -webkit-transition: all 600ms;
-    transition: all 600ms;
+    /*-webkit-transition: all 600ms;*/
+    /*transition: all 600ms;*/
 }
 
 .play-card-img:hover {
-    -webkit-transform: rotateX(20deg);
-    transform: rotateX(20deg);
+    /*-webkit-transform: rotateX(20deg);*/
+    /*transform: rotateX(20deg);*/
     box-shadow: 4px 4px 8px #666;
 }
 
@@ -271,15 +271,15 @@ table.game-info-matrix > tbody > tr > td:last-child {
     max-height: 150px;
     border: none !important;
     position: relative;
-    -webkit-transition: -webkit-transform 1s;
-    -moz-transition: -moz-transform 1s;
-    -o-transition: -o-transform 1s;
+    /*-webkit-transition: -webkit-transform 1s;*/
+    /*-moz-transition: -moz-transform 1s;*/
+    /*-o-transition: -o-transform 1s;*/
     transition: transform 1s;
-    -webkit-transform-style: preserve-3d;
-    -moz-transform-style: preserve-3d;
-    -o-transform-style: preserve-3d;
+    /*-webkit-transform-style: preserve-3d;*/
+    /*-moz-transform-style: preserve-3d;*/
+    /*-o-transform-style: preserve-3d;*/
     transform-style: preserve-3d;
-    -webkit-transform-origin: 50% 50%;
+    /*-webkit-transform-origin: 50% 50%;*/
     transform-origin: 50% 50%;
     cursor: pointer;
 }
