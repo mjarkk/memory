@@ -69,7 +69,20 @@ var totaal_scores = [ 0, 0 ];   // Hier houden we de totaal scores per speler bi
     ==========================================================================
  */
 
+window.onload = function() {
+    speelveld = document.getElementsByClassName('play-card');
+    game_button = document.getElementById('game-button');
+    score_speler_1 = document.getElementById('score-speler-1');
+    score_speler_2 = document.getElementById('score-speler-2');
+    naam_speler_1 = document.getElementById('name-speler-1');
+    naam_speler_2 = document.getElementById('name-speler-2');
 
+    huidige_speler = determineStartingPlayer();
+    showCurrentPlayer();
+
+    game_button.addEventListener('click', clickOnGameButton );
+
+}
 
 /*
     resetScores()
@@ -115,7 +128,22 @@ function getCardImageTag(card_index)
 function clickOnGameButton(event)
 {
     // @TODO Implementeren van de click op de button
+    shuffleCards();
+    huidige_speler = determineStartingPlayer();
+    showCurrentPlayer();                // @TODO showCurrentPlayer()
 
+    if(game_button.innerText === 'Start') {
+        // @TODO: Tekst veranderen en kaarten klikbaar maken
+        game_button.innerText = "Reset";
+
+        for(var kaart_nummer = 0; kaart_nummer < speelveld.length; kaart_nummer++) {
+            speelveld[kaart_nummer].addEventListener('click', clickOnCard );
+        }
+
+
+    } else {
+        // @TODO De reset acties uitvoeren
+    }
 }
 
 /*
@@ -201,3 +229,35 @@ function showCurrentPlayer()
     // @TODO: Implementeren van het laten zien welke speler aan de beurt is
 
 }
+
+/*
+    flipCard(card_index)
+    --------------------
+    Draait kaart om van gegeven object carddiv. Als de kaart al is omgedraaid dan
+    draaien we de kaart weer terug. Dit doen we met een CSS-class, genaamd flipped.
+	Deze zorgt voor het draai effect. Door de tweede div te vullen met de juiste img-tag
+	wordt de bijbehorende afbeelding zichtbaar.
+
+	We vertellen
+*/
+function flipCard(card_index)
+{
+    if(speelveld[card_index].classList.contains('flipped')) {	// Bevat de kaart al de css class flipped?
+        /*
+            Ja!
+            Dan gaan de kaart weer terugdraaien door de css class flipped weer weg te halen
+        */
+        speelveld[card_index].classList.remove('flipped');			// Hier halen we de css class flipped weg
+        speelveld[card_index].children[CARD_FRONT].innerHTML = "";	// We gaan de img-tag ook weer verwijderen
+    } else {
+        /*
+            Nee!
+            Dan draaien we de kaart om zodat de afbeelding zichtbaar wordt.
+            Dit doen we door de css class flipped toe te voegen aan de kaart en de tweede div
+            in de kaart te vullen met de img-tag van de echte afbeelding
+        */
+        speelveld[card_index].children[CARD_FRONT].innerHTML = getCardImageTag(card_index);	// Toon de afbeelding
+        speelveld[card_index].classList.add('flipped');										// Voeg de css class flipped toe.
+    }
+}
+
