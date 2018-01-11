@@ -1,263 +1,250 @@
-/*  ==========================================================================
-    CONSTANTEN
-    ==========================================================================
-    Constanten zijn variabelen die niet gewijzigd zullen en kunnen worden
-    in onze applicatie. We gebruiken ze eigenlijk vaak om waarden die we
-    vaak gebruiken voor b.v. controles een duidelijker naam te geven.
-    Hierdoor kunnen we in onze code makkelijker lezen wat we bedoelen.
-    Dus puur voor de leesbaarheid van onze code.
-    ==========================================================================
- */
-const SPELER1               = 0;
-const SPELER2               = 1;
-const CARD_BACK             = 0;
-const CARD_FRONT            = 1;
-const OFF                   = false;
-const ON                    = true;
-const YES                   = true;
-const NO                    = false;
-const NO_CARD_CLICKED       = -1;
-const FIRST_CARD_CLICKED    = 0;
-const LAST_CARD_CLICKED     = 1;
+// main script
 
-/*  ==========================================================================
-    VARIABELEN
-    ==========================================================================
-    Variabelen zullen wel gewijzigd worden. Op z'n minst om bij het starten
-    van ons programma ze alvast te vullen met een object of een waarde.
-    ==========================================================================
- */
-var speelveld;                  // Element
-var game_button;                // Element
-var score_speler_1;             // Element
-var score_speler_2;             // Element
-var huidige_speler = SPELER1;   // Welke speler is aan de beurt
-var naam_speler_1;              // Element
-var naam_speler_2;              // Element
-var cards = [                   // De nummers zijn tevens de namen van de jpeg
-    1, 2, 3, 4, 5, 6, 7, 8,       // afbeeldingen (1.jpg bijvoorbeeld)
-    1, 2, 3, 4, 5, 6, 7, 8
-];
-/*
-    In de onderstaande array houden we bij op welke twee kaarten geclicked is
-    We kunnen deze array ook gebruiken om te controleren of het maximaal
-    aantal aan te klikken kaarten al is bereikt.
- */
-var cards_clicked = [ NO_CARD_CLICKED, NO_CARD_CLICKED ];
+ShuffleArray = array => array.map((a) => [Math.random(),a]).sort((a,b) => a[0]-b[0]).map((a) => a[1]);
 
-var ronde_scores = [ 0, 0 ];    // Hier houden we tijdelijk de rondescores bij
-var totaal_scores = [ 0, 0 ];   // Hier houden we de totaal scores per speler bij
+const log = console.log
+const MainEl = document.querySelector('.content .main')
+const InfoEl = document.querySelector('.content .info')
+const MainBtn = document.querySelector('.main-btn')
+const AddPlayer = document.querySelector('.add-players .add')
+const RemovePlayer = document.querySelector('.add-players .remove')
+const players = document.querySelectorAll('.info .add-players, .info .players')
+const ScoreList = document.querySelector('.info .score')
 
-/*  ==========================================================================
-    FUNCTIES
-    ==========================================================================
-    Hieronder schrijven we al onze functies die samen het spel vormen en het
-    dus mogelijk maken ons spel ook echt te spelen.
-    De twee kernfuncties zijn:
+class Game {
+  constructor(input) {
 
-    clickOnGameButton
-    -----------------
-    Deze functie gaat alle kliks op de button afhandelen en de dingen doen
-    die we in de voorbereiding hebben bedacht.
+    this.players = ['Speler 1','Speler 2']
+    this.GameRunning = false
+    this.rows = []
+    this.playercardsselected = [undefined, undefined]
+    this.ActivePlayer = 0
+    this.setup()
+    this.CardList = document.querySelectorAll('.cards')
 
-    clickOnCard
-    -----------
-    Deze functie gaat alle kliks op de kaarten afhandelen. In deze functie
-    wordt eigenlijk het spel gespeeld en moeten we dus ook verschillende
-    controles inbouwen
+  }
 
-    ==========================================================================
- */
+  ShowGame(status) {
+    // status = <boolean>
+    // show the game
+    MainEl.style.opacity = (status) ? 1 : 0
+  }
 
-window.onload = function() {
-    speelveld = document.getElementsByClassName('play-card');
-    game_button = document.getElementById('game-button');
-    score_speler_1 = document.getElementById('score-speler-1');
-    score_speler_2 = document.getElementById('score-speler-2');
-    naam_speler_1 = document.getElementById('name-speler-1');
-    naam_speler_2 = document.getElementById('name-speler-2');
+  setup() {
+    // run setup
+    this.RePlayers()
+    this.MakeItems()
+    this.render()
+  }
 
-    huidige_speler = determineStartingPlayer();
-    showCurrentPlayer();
+  RePlayers() {
+    // update this.players
+    let el = document.querySelectorAll('input.player-name-js')
+    let newplayers = []
+    for (let i = 0; i < el.length; i++) {
+      newplayers.push({
+        name: el[i].value,
+        score: 0
+      })
+    }
+    this.players = newplayers
+  }
 
-    game_button.addEventListener('click', clickOnGameButton );
+  PlayersAddRemove(input) {
+    // input = <boolean>
+    let el = document.querySelectorAll('input.player-name-js')
+    let elholder = document.querySelector('div.info > div.players')
+    if (input) {
+      if (el.length < 6) {
+        let addinput = document.createElement('input')
+        addinput.classList.add('player-name-js')
+        addinput.classList.add('player')
+        addinput.type = 'text'
+        addinput.value = `Speler ${el.length + 1}`
+        elholder.appendChild(addinput)
+      }
+    } else {
+      if (el.length > 1) {
+        el[el.length - 1].remove()
+      }
+    }
+    this.RePlayers()
+  }
 
-}
-
-/*
-    resetScores()
-    -------------
-    Reset de rondescores
-
-    TYPE:   Hulpfunctie
- */
-function resetScores()
-{
-    ronde_scores[SPELER1] = 0;
-    ronde_scores[SPELER2] = 0;
-}
-
-/*
-    getCardImageTag()
-    -----------------
-    Maak de image tag af met een kaart op basis van de kaartnummer
-    Een kaartnummer loopt van 0 t/m 15
-
-    @return string  De image-tag naar een juiste afbeelding
-
-    TYPE:   Hulpfunctie
- */
-function getCardImageTag(card_index)
-{
-    /*
-        Onderstaande opdracht levert bijvoorbeeld het volgende op als card_index gelijk is 1
-        en op cards[1] staat het afbeeldingsnummer 8:
-
-        <img class="play-card-img" src="img/8.jpg" />
-     */
-    return '<img  class="play-card-img" src="img/' + cards[card_index] + ".jpg\" />"
-}
-
-/*
-    clickOnGameButton()
-    -------------------
-    Handel de clicks op de button af
-
-    TYPE:   Main Functie
- */
-function clickOnGameButton(event)
-{
-    // @TODO Implementeren van de click op de button
-    shuffleCards();
-    huidige_speler = determineStartingPlayer();
-    showCurrentPlayer();                // @TODO showCurrentPlayer()
-
-    if(game_button.innerText === 'Start') {
-        // @TODO: Tekst veranderen en kaarten klikbaar maken
-        game_button.innerText = "Reset";
-
-        for(var kaart_nummer = 0; kaart_nummer < speelveld.length; kaart_nummer++) {
-            speelveld[kaart_nummer].addEventListener('click', clickOnCard );
+  CardClick(ev) {
+    let vm = this
+    if (this.GameRunning) {
+      let card = {
+        id: undefined, // the id of the card
+        el: undefined // the element itself
+      }
+      let blockcard = false
+      for (let i = 0; i < ev.path.length; i++) {
+        let classList = ev.path[i].classList
+        for (let j in classList) {
+          // for some wired reason i can't iterated with a normal for loop over a DOMTokenList
+          // bug: https://github.com/angular/angular.js/issues/11665
+          if (classList.hasOwnProperty(j)) {
+            let thisClass = classList[j]
+            if (thisClass == 'open') {
+              blockcard = true
+            } else if (thisClass.startsWith('card-')) {
+              card.id = Number(thisClass.slice(5,thisClass.lenght))
+              card.el = ev.path[i]
+            }
+          }
         }
+        if (typeof cardclicked == 'number') {
+          break;
+        }
+      }
 
+      if (!blockcard) {
+        card.el.classList.add('open')
+        let topush = (typeof this.playercardsselected[0] == 'undefined') ? 0 : 1
+        this.playercardsselected[topush] = {
+          id: card.id,
+          el: card.el
+        }
+        if (topush == 1) {
+          if (this.rows[this.playercardsselected[0].id] == this.rows[this.playercardsselected[1].id]) {
+            // plyer goes again and tries to get more points
+            this.playercardsselected[0] = undefined
+            this.playercardsselected[1] = undefined
+            this.players[this.ActivePlayer].score = this.players[this.ActivePlayer].score + 1
+          } else {
+            // next player
+            vm.NextPlayer()
+            vm.GameRunning = false
+            setTimeout(() => {
+              vm.playercardsselected[0].el.classList.remove('open')
+              vm.playercardsselected[1].el.classList.remove('open')
+              vm.playercardsselected[0] = undefined
+              vm.playercardsselected[1] = undefined
+              vm.GameRunning = true
+            }, 1000);
+          }
+        }
+        this.UpdateScore()
+      }
 
+    }
+  }
+
+  NextPlayer() {
+    if (this.players[this.ActivePlayer + 1]) {
+      this.ActivePlayer = this.ActivePlayer + 1
     } else {
-        // @TODO De reset acties uitvoeren
+      this.ActivePlayer = 0
     }
-}
+  }
 
-/*
-    clickOnCard()
-    -------------
-    Handel de clicks op de cards af
-    In deze functie handelen we een ronde af
+  UpdateScore() {
+    // update the scores on screen
+    ScoreList.innerHTML = ''
+    for (var i = 0; i < this.players.length; i++) {
+      let player = this.players[i]
+      let PlayerEl = document.createElement('div')
+      PlayerEl.classList.add('player-info')
+      PlayerEl.classList.add(`player-${i}`)
 
-    TYPE:   Main Functie
- */
-function clickOnCard(event)
-{
-    // Voorbereiden van lokale variabelen
-    var parentDiv = event.target.parentElement.parentElement;
-    var card_back = event.target.parentElement.parentElement.children[0];
-    var card_front = event.target.parentElement.parentElement.children[1];
-    var cellNumber = event.target.parentElement.parentElement.parentElement.cellIndex;
-    var rowNumber = event.target.parentElement.parentElement.parentElement.parentElement.rowIndex;
-    var cardNumber = (rowNumber * 4) + cellNumber;
+      if (this.ActivePlayer == i) {
+        PlayerEl.classList.add(`ActivePlayer`)
+      }
+      let name = document.createElement('div')
+      name.innerText = player.name
+      let score = document.createElement('div')
+      score.innerText = player.score
 
-    // Hieronder volgt de logica
-    // @TODO: Implementatie kaart klik event
+      PlayerEl.appendChild(name)
+      PlayerEl.appendChild(score)
 
-}
-
-/*
-    endRound()
-    ----------
-    Einde van een ronde. Dus afhandelen wanneer een ronde ten einde is
-
-    TYPE:   Hulpfunctie
- */
-function endRound()
-{
-    //@TODO: Implementeren van een einde van een ronde
-
-}
-
-/*
-    shuffleCards()
-    --------------
-    Shuffle de kaarten
-
-    TYPE:   Hulpfunctie
- */
-function shuffleCards()
-{
-    var i = 0;
-    var j = 0;
-    var temp = null;
-
-    for (i = cards.length - 1; i > 0; i -= 1) {
-        j = Math.floor(Math.random() * (i + 1));
-        temp = cards[i];
-        cards[i] = cards[j];
-        cards[j] = temp;
+      ScoreList.appendChild(PlayerEl)
     }
-}
 
-/*
-    determineStartingPlayer()
-    -------------------------
-    Bepaal random (willekeurig) welke van de 2 spelers mag beginnen
+  }
 
-    @return int Speler nummer (0 of 1)
-
-    TYPE:   Hulpfunctie
- */
-function determineStartingPlayer()
-{
-    return Math.round(Math.random());
-}
-
-/*
-    showCurrentPlayer()
-    -------------------
-    Toont op het scherm welke speler aan de beurt is
-
-    TYPE:   Hulpfunctie
- */
-function showCurrentPlayer()
-{
-    // @TODO: Implementeren van het laten zien welke speler aan de beurt is
-
-}
-
-/*
-    flipCard(card_index)
-    --------------------
-    Draait kaart om van gegeven object carddiv. Als de kaart al is omgedraaid dan
-    draaien we de kaart weer terug. Dit doen we met een CSS-class, genaamd flipped.
-	Deze zorgt voor het draai effect. Door de tweede div te vullen met de juiste img-tag
-	wordt de bijbehorende afbeelding zichtbaar.
-
-	We vertellen
-*/
-function flipCard(card_index)
-{
-    if(speelveld[card_index].classList.contains('flipped')) {	// Bevat de kaart al de css class flipped?
-        /*
-            Ja!
-            Dan gaan de kaart weer terugdraaien door de css class flipped weer weg te halen
-        */
-        speelveld[card_index].classList.remove('flipped');			// Hier halen we de css class flipped weg
-        speelveld[card_index].children[CARD_FRONT].innerHTML = "";	// We gaan de img-tag ook weer verwijderen
+  InitButtonPressed(ev) {
+    if (!this.GameRunning) {
+      // start the game
+      this.GameRunning = true
+      MainBtn.innerText = 'Reset'
     } else {
-        /*
-            Nee!
-            Dan draaien we de kaart om zodat de afbeelding zichtbaar wordt.
-            Dit doen we door de css class flipped toe te voegen aan de kaart en de tweede div
-            in de kaart te vullen met de img-tag van de echte afbeelding
-        */
-        speelveld[card_index].children[CARD_FRONT].innerHTML = getCardImageTag(card_index);	// Toon de afbeelding
-        speelveld[card_index].classList.add('flipped');										// Voeg de css class flipped toe.
+      // reset the game
+      this.setup()
     }
+    for (let i = 0; i < players.length; i++) {
+      players[i].style.display = 'none'
+    }
+    ScoreList.style.display = 'inline-block'
+    this.UpdateScore()
+    this.ShowGame(true)
+  }
+
+  MakeItems() {
+    let rows = []
+    for (var i = 0; i < 8; i++) {
+      rows.push(i + 1)
+    }
+    rows = rows.concat(rows) // duplicate the array
+    rows = ShuffleArray(rows) // shuffel the array
+    this.rows = rows
+  }
+
+  render() {
+    const cards = document.createElement("div")
+    cards.classList.add('cards')
+
+    for (var i = 0; i < this.rows.length; i++) {
+      let card = document.createElement("div")
+      card.classList.add('card')
+      card.classList.add(`card-${i}`)
+      card.onclick = (ev) => this.CardClick(ev)
+
+      let CardFront = document.createElement("div")
+      CardFront.classList.add('card-front')
+      CardFront.style.backgroundImage = `url(img/${this.rows[i]}.jpg)`
+
+      let CardBack = document.createElement("div")
+      CardBack.classList.add('card-back')
+
+      let container = document.createElement("div")
+      container.classList.add('card-container')
+
+      container.appendChild(CardBack)
+      container.appendChild(CardFront)
+      card.appendChild(container)
+
+      cards.appendChild(card)
+    }
+
+    MainEl.innerHTML = ''
+    MainEl.appendChild(cards)
+  }
 }
 
+game = new Game({})
+
+// bind the start/reset button from the game to the game object
+MainBtn.onclick = (e) => game.InitButtonPressed(e)
+
+AddPlayer.onclick = (e) => game.PlayersAddRemove(true)
+RemovePlayer.onclick = (e) => game.PlayersAddRemove(false)
+
+// .remove polyfill
+(function (arr) {
+  arr.forEach(function (item) {
+    if (item.hasOwnProperty('remove')) {
+      return;
+    }
+    Object.defineProperty(item, 'remove', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: function remove() {
+        if (this.parentNode !== null)
+          this.parentNode.removeChild(this);
+      }
+    });
+  });
+})([Element.prototype, CharacterData.prototype, DocumentType.prototype]);

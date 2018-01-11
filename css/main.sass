@@ -1,0 +1,167 @@
+// the main style file
+
+@font-face
+  font-family: SkylanderFont
+  src: url('../fonts/pincoyablack.otf')
+
+*
+  padding: 0px
+  margin: 0px
+  border: 0px
+
+body
+  font-family: sans-serif
+  font-size: 18px
+  background-color: cornflowerblue
+
+.header
+  height: 180px
+  display: flex
+  justify-content: center
+  align-items: center
+  background-image: url('../img/banner.jpg')
+  background-position: center
+  background-size: cover
+  background-repeat: no-repeat
+  h1
+    font-family: SkylanderFont, sans-serif
+    font-size: 120px
+    color: crimson
+    text-shadow: 3px 3px 8px #000
+
+.content
+  display: flex
+  justify-content: center
+  flex-wrap: wrap
+  flex-direction: row
+  .main, .info
+    margin: 10px
+    box-sizing: border-box
+    border-radius: 10px
+  .main
+    height: 600px
+    width: 550px
+    transition: opacity 0.3s
+    .cards
+      padding: 10px 5px 3px 5px
+      overflow: hidden
+      background-color: white
+      border-radius: 10px
+      height: 100%
+      width: 100%
+      box-sizing: border-box
+      display: flex
+      flex-direction: row
+      flex-wrap: wrap
+      .card
+        display: flex
+        justify-content: center
+        perspective: 1000px
+        height: 25%
+        width: 25%
+      .card.open .card-container
+        transform: rotateY(180deg) translateZ(50px) translate(-10px, 0px)
+      .card-container
+        height: 120px
+        width: 110px
+        transform-style: preserve-3d
+        transform: rotateY(0deg) translateZ(0px) translate(-0px, 0px)
+        position: relative
+        will-change: transform
+        transition: transform 0.6s
+      .card-back, .card-front
+        overflow: hidden
+        border-radius: 5px
+        background-size: cover
+        background-position: center
+        height: 140px
+        width: 120px
+        display: inline-block
+        position: absolute
+        top: 0px
+        left: 0px
+        backface-visibility: hidden
+      .card-back
+        background-image: url('../img/cardback.jpg')
+        transform: rotateY(0deg)
+        z-index: 2
+      .card-front
+        transform: rotateY(180deg)
+  .info
+    background-color: white
+    width: 300px
+    height: 500px
+    .score
+      width: 100%
+      box-sizing: border-box
+      padding: 20px
+      .player-info
+        font-size: 20px
+        width: 100%
+        box-sizing: border-box
+        display: flex
+        justify-content: space-between
+        align-items: center
+      .ActivePlayer *
+        color: rgb(19, 159, 237)
+    .add-players
+      display: flex
+      flex-direction: row
+      flex-wrap: wrap
+      h4
+        width: 100%
+        padding: 5px 10px
+      p
+        cursor: pointer
+        display: inline-block
+        padding: 3px 8px
+        background-color: seagreen
+        color: white
+        font-weight: bolder
+        margin: 3px
+        border-radius: 5px
+        -webkit-user-select: none
+        -moz-user-select: none
+        -ms-user-select: none
+        user-select: none
+    .players
+      display: flex
+      justify-content: center
+      align-items: center
+      padding: 10px
+      box-sizing: border-box
+      flex-direction: column
+      input
+        border-bottom: 2px solid seagreen
+        padding: 5px
+        font-size: 20px
+        width: 100%
+        box-sizing: border-box
+    .inf-header
+      font-family: SkylanderFont, sans-serif
+      margin: 10px
+      display: flex
+      justify-content: center
+      align-items: center
+      height: 120px
+      font-size: 50px
+      flex-direction: column
+      background-color: seagreen
+      border-top-left-radius: 7px
+      border-top-right-radius: 7px
+      color: crimson
+      text-shadow: 3px 3px 8px #000
+    .score
+    .buttons
+      display: flex
+      justify-content: center
+      align-items: center
+      flex-direction: row
+      flex-wrap: wrap
+      button
+        padding: 5px 10px
+        background-color: crimson
+        font-size: 20px
+        color: white
+        cursor: pointer
+        border-radius: 5px
