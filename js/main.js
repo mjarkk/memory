@@ -162,6 +162,11 @@ class Game {
       ScoreList.appendChild(PlayerEl)
     }
 
+    // reset the game if all cards are turned
+    (document.querySelectorAll('.card.open').length == 16) ?
+      InitButtonPressed(false) :
+      true
+
   }
 
   InitButtonPressed(ev) {
