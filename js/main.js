@@ -3,6 +3,8 @@
 ShuffleArray = array => array.map((a) => [Math.random(),a]).sort((a,b) => a[0]-b[0]).map((a) => a[1]);
 
 const log = console.log
+
+// al html elements that we need
 const MainEl = document.querySelector('.content .main')
 const InfoEl = document.querySelector('.content .info')
 const MainBtn = document.querySelector('.main-btn')
@@ -14,13 +16,16 @@ const ScoreList = document.querySelector('.info .score')
 class Game {
   constructor(input) {
 
+    // setup all class variables
     this.players = ['Speler 1','Speler 2']
     this.GameRunning = false
     this.rows = []
     this.playercardsselected = [undefined, undefined]
     this.ActivePlayer = 0
-    this.setup()
     this.CardList = document.querySelectorAll('.cards')
+
+    // run the setup
+    this.setup()
 
   }
 
@@ -31,14 +36,14 @@ class Game {
   }
 
   setup() {
-    // run setup
+    // all function to run to setup the game
     this.RePlayers()
     this.MakeItems()
     this.render()
   }
 
   RePlayers() {
-    // update this.players
+    // update this.players from the input boxes on screen
     let el = document.querySelectorAll('input.player-name-js')
     let newplayers = []
     for (let i = 0; i < el.length; i++) {
@@ -52,6 +57,7 @@ class Game {
 
   PlayersAddRemove(input) {
     // input = <boolean>
+    // Add a input for a new player or remove a input for a player
     let el = document.querySelectorAll('input.player-name-js')
     let elholder = document.querySelector('div.info > div.players')
     if (input) {
@@ -87,14 +93,17 @@ class Game {
           if (classList.hasOwnProperty(j)) {
             let thisClass = classList[j]
             if (thisClass == 'open') {
+              // check if the card has a `open` class if so stop this card from being used
               blockcard = true
             } else if (thisClass.startsWith('card-')) {
+              // get the number from the card-{{some number}} and use that to determine which card is clicked
               card.id = Number(thisClass.slice(5,thisClass.lenght))
               card.el = ev.path[i]
             }
           }
         }
-        if (typeof cardclicked == 'number') {
+        // check if the card.id is set if so stop this for loop
+        if (typeof card.id == 'number') {
           break;
         }
       }
@@ -132,6 +141,7 @@ class Game {
   }
 
   NextPlayer() {
+    // go to the next player
     if (this.players[this.ActivePlayer + 1]) {
       this.ActivePlayer = this.ActivePlayer + 1
     } else {
@@ -170,6 +180,7 @@ class Game {
   }
 
   InitButtonPressed(ev) {
+    // start / reset button pressed handeler
     if (!this.GameRunning) {
       // start the game
       this.GameRunning = true
@@ -187,6 +198,7 @@ class Game {
   }
 
   MakeItems() {
+    // make a lit of cards and shuffle them
     let rows = []
     for (var i = 0; i < 8; i++) {
       rows.push(i + 1)
@@ -197,6 +209,8 @@ class Game {
   }
 
   render() {
+
+    // make all card items and place htem on screen
     const cards = document.createElement("div")
     cards.classList.add('cards')
 
@@ -228,28 +242,12 @@ class Game {
   }
 }
 
+// make a new game
 game = new Game({})
 
 // bind the start/reset button from the game to the game object
 MainBtn.onclick = (e) => game.InitButtonPressed(e)
 
+// bind add player and remove player button to `game.PlayersAddRemove()`
 AddPlayer.onclick = (e) => game.PlayersAddRemove(true)
 RemovePlayer.onclick = (e) => game.PlayersAddRemove(false)
-
-// .remove polyfill
-(function (arr) {
-  arr.forEach(function (item) {
-    if (item.hasOwnProperty('remove')) {
-      return;
-    }
-    Object.defineProperty(item, 'remove', {
-      configurable: true,
-      enumerable: true,
-      writable: true,
-      value: function remove() {
-        if (this.parentNode !== null)
-          this.parentNode.removeChild(this);
-      }
-    });
-  });
-})([Element.prototype, CharacterData.prototype, DocumentType.prototype]);
