@@ -95,8 +95,9 @@ class Game {
             if (thisClass == 'open') {
               // check if the card has a `open` class if so stop this card from being used
               blockcard = true
-            } else if (thisClass.startsWith('card-')) {
+            } else if (thisClass.startsWith('card-') && thisClass != 'card-back' && thisClass != 'card-container') {
               // get the number from the card-{{some number}} and use that to determine which card is clicked
+              log(thisClass)
               card.id = Number(thisClass.slice(5,thisClass.lenght))
               card.el = ev.path[i]
             }
